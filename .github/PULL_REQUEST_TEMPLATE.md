@@ -1,8 +1,14 @@
-## Descrição
+## Como estava antes
 
-<!-- O que esse PR muda e por quê -->
+<!-- Ex: Não era possível listar todos os usuários como admin -->
+
+## O que esta alteração muda
+
+<!-- Ex: Permite que admins consigam visualizar outros admins -->
 
 ## Tipo de mudança
+
+<!-- - [x] Correção de bug -->
 
 - [ ] Nova funcionalidade
 - [ ] Correção de bug
@@ -12,11 +18,16 @@
 
 ## Como testar
 
-<!-- Passos manuais, se houver, além dos testes automatizados -->
+<!-- Passos manuais, se houver, além dos testes automatizados 
+- Tentar listar usuários como admin
+- Notar que outros usuários admins são listados -->
 
-## Checklist
+-
 
-- [ ] `pnpm test` passa localmente
-- [ ] `pnpm test:e2e` passa localmente (se aplicável)
-- [ ] `pnpm check` rodado (lint + format)
-- [ ] Regras de domínio novas/alteradas têm teste unitário correspondente
+## Mais informações
+
+<!-- Passos manuais, se houver, além dos testes automatizados 
+- Depends on: link do PR #123
+- Task: link de uma task específica -->
+
+- 

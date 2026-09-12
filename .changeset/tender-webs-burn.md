@@ -2,4 +2,4 @@
 "oficina-api": patch
 ---
 
-Correção: Ajusta githubActions e changeset version no CI
+Correção: Ajusta githubActions, changeset version e `PR` template no `CI`

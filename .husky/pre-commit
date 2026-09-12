@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+branch="$(git symbolic-ref --short HEAD)"
+if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
+  echo "❌ Commit direto na branch '$branch' não é permitido. Crie uma branch (ex: git checkout -b feat/nome-da-feature)."
+  exit 1
+fi
+
+if ! echo "$branch" | grep -qE '^(feat|fix|docs|chore|refactor|test|ci|build|perf|style)/[a-z0-9._-]+$'; then
+  echo "❌ Nome de branch '$branch' fora do padrão. Use <tipo>/<descricao>, ex: feat/cadastro-cliente, fix/calculo-orcamento."
+  echo "   Tipos aceitos: feat, fix, docs, chore, refactor, test, ci, build, perf, style."
+  exit 1
+fi
+
+if [ -f package-lock.json ] || [ -f yarn.lock ]; then
+  echo "❌ Encontrado lockfile de outro gerenciador (package-lock.json ou yarn.lock). Este projeto usa pnpm — apague o arquivo e use 'pnpm install'."
+  exit 1
+fi
+
+pnpm exec lint-staged

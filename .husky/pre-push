@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+branch="$(git symbolic-ref --short HEAD)"
+if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
+  echo "❌ Push direto na branch '$branch' não é permitido. Abra um Pull Request a partir de uma branch separada."
+  exit 1
+fi
+
+pnpm test

@@ -20,13 +20,14 @@
 
 <!-- Passos manuais, se houver, além dos testes automatizados 
 - Tentar listar usuários como admin
-- Notar que outros usuários admins são listados 
--->
+- Notar que outros usuários admins são listados -->
+
+-
 
 ## Mais informações
 
 <!-- Passos manuais, se houver, além dos testes automatizados 
 - Depends on: link do PR #123
-- Task: link de uma task específica
--->
+- Task: link de uma task específica -->
+
 - 

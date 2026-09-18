@@ -19,7 +19,7 @@ Vídeo (≤15min), documentação DDD (Event Storming dos fluxos de OS e de peç
 
 ⚠️ O repositório privado precisa dar acesso ao usuário **soatarchitecture** — não esquecer ao criar o repo no GitHub.
 
-A estrutura de pastas específica e as convenções de código detalhadas serão documentadas aqui conforme o código for avançando.
+A estrutura de pastas, os padrões de código (Use Case, Repository, tratamento de erro, etc.) e o fluxo de git (branch, commit, PR, changesets) estão documentados em [`docs/code/README.md`](docs/code/README.md) e [`docs/workflow/README.md`](docs/workflow/README.md), respectivamente.
 
 ## Você deve ser um professor
 
@@ -55,12 +55,12 @@ A regra `style/useImportType` do Biome está **desativada** neste projeto (ver `
 
 ## Fluxo de Changesets
 
-1. Toda mudança relevante em um PR deve incluir `pnpm changeset` (gera um `.md` em `.changeset/` descrevendo o bump e o resumo). O CI (`changeset-check` em `ci.yml`) falha o PR se faltar.
-2. Mudança que não deve gerar release (ex: só doc) pode usar `pnpm exec changeset add --empty`.
-3. Ao mergear na `main`, o workflow `release.yml` roda a action `changesets/action`: se houver changesets pendentes, ela abre/atualiza sozinha um PR "Version Packages" com o bump de versão + `CHANGELOG.md` prontos. Ninguém escreve a versão na mão — só revisa e mergeia esse PR.
-4. `changelog` está configurado como o gerador padrão (sem links do GitHub). Para ter changelog com links de PR/commit/autor, instalar `@changesets/changelog-github` e trocar o campo `"changelog"` do `.changeset/config.json` para `["@changesets/changelog-github", { "repo": "18SOAT/oficina-api" }]`.
-5. `baseBranch` no `.changeset/config.json` é `"main"`, que é o branch padrão do repositório (`github.com/18SOAT/oficina-api`).
+Toda mudança relevante em PR precisa de `pnpm changeset` (ou `pnpm exec changeset add --empty` se for só doc). Detalhe completo do fluxo (PR automático de versão, configuração do `baseBranch`, troca de gerador de changelog) em [`docs/workflow/changesets.md`](docs/workflow/changesets.md).
 
 ## Convenção de nomes de branch
 
-Toda branch (exceto `main`/`master`, que são bloqueadas de commit direto) deve seguir `<tipo>/<descricao>`, com `<tipo>` em `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `build` ou `style` — ex: `feat/cadastro-cliente`, `fix/calculo-orcamento`. Validado no `.husky/pre-commit`.
+`<tipo>/<descricao>`, com `<tipo>` em `feat, fix, docs, chore, refactor, test, ci, build, perf, style` — validado no `.husky/pre-commit`. Detalhe completo em [`docs/workflow/branching.md`](docs/workflow/branching.md).
+
+## Convenção de commit e idioma de PR
+
+Commits seguem Conventional Commits com os mesmos tipos da branch; comentário e descrição de PR são em português. Detalhe em [`docs/workflow/commits.md`](docs/workflow/commits.md) e [`docs/workflow/pull-requests.md`](docs/workflow/pull-requests.md).

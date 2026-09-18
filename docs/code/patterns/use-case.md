@@ -1,8 +1,8 @@
 # Use Case
 
-A Use Case represents one specific business operation. It is a normal NestJS provider — nothing special to the framework, just a project-wide convention.
+Um Use Case representa uma operação de negócio específica. É um provider normal do NestJS — nada especial pro framework, só uma convenção do projeto.
 
-## Contract
+## Contrato
 
 ```typescript
 // shared/application/use-case.interface.ts
@@ -11,7 +11,7 @@ export interface UseCase<Input, Output> {
 }
 ```
 
-Every Use Case implements this interface:
+Todo Use Case implementa essa interface:
 
 ```typescript
 @Injectable()
@@ -26,7 +26,7 @@ export class CreateCustomerUseCase implements UseCase<CreateCustomerInput, Custo
 }
 ```
 
-A Use Case with no input uses `void`:
+Um Use Case sem input usa `void`:
 
 ```typescript
 export class ListCustomersUseCase implements UseCase<void, Customer[]> {
@@ -34,10 +34,10 @@ export class ListCustomersUseCase implements UseCase<void, Customer[]> {
 }
 ```
 
-## Rules
+## Regras
 
-- One Use Case per business operation. A module registers many Use Case providers — that's expected, not a smell.
-- The Use Case orchestrates: loads via Repository, calls behavior on the Entity, persists, calls other collaborators (Mailer, Cache) when the operation requires it.
-- Business rules and invariants live on the Entity (see [Entity](entity.md)), never inline in the Use Case.
-- A Use Case may inject another Use Case only when the operation has a genuine business dependency on it (see the anti-pattern note in [Controller](controller.md)) — never as a generic pass-through orchestrator.
-- No transport concerns here: never build an HTTP status code, never know about a response envelope. Return domain data or throw a typed `DomainError` (see [Error handling](error-handling.md)).
+- Um Use Case por operação de negócio. Um módulo registra vários providers de Use Case — isso é esperado, não é um smell.
+- O Use Case orquestra: carrega via Repository, chama comportamento na Entity, persiste, chama outros colaboradores (Mailer, Cache) quando a operação exige.
+- Regras de negócio e invariantes ficam na Entity (ver [Entity](entity.md)), nunca embutidas no Use Case.
+- Um Use Case só pode injetar outro Use Case quando a operação tem uma dependência de negócio de fato (ver a nota de anti-pattern em [Controller](controller.md)) — nunca como um orquestrador genérico de passagem.
+- Nenhuma preocupação de transporte aqui: nunca monte um status HTTP, nunca conheça um envelope de resposta. Retorne dado de domínio ou lance um `DomainError` tipado (ver [Tratamento de erros](error-handling.md)).

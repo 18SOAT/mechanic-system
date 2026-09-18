@@ -1,6 +1,6 @@
-# Error handling
+# Tratamento de erros
 
-## `DomainError` must be a class, not an interface
+## `DomainError` precisa ser uma classe, não uma interface
 
 ```typescript
 // shared/domain/errors/domain.error.ts
@@ -9,11 +9,11 @@ export abstract class DomainError extends Error {
 }
 ```
 
-TypeScript interfaces are erased at compile time — `instanceof` (and Nest's `@Catch()`) need a real runtime type. An `abstract class` gives the same "every subclass must implement this" guarantee as an interface, while still existing at runtime.
+Interfaces do TypeScript são apagadas em tempo de compilação — `instanceof` (e o `@Catch()` do Nest) precisam de um tipo real em runtime. Uma `abstract class` dá a mesma garantia de "toda subclasse precisa implementar isso" que uma interface daria, mas continua existindo em runtime.
 
-## Catalog per module
+## Catalog por módulo
 
-One class per module/bounded context, with a private constructor and one named static factory per specific error — not a generic `new SomeError(code, message)` call scattered everywhere:
+Uma classe por módulo/bounded context, com constructor privado e uma factory estática nomeada por erro específico — não uma chamada genérica `new SomeError(code, message)` espalhada por todo lugar:
 
 ```typescript
 // modules/customer/domain/errors/customer.error.ts
@@ -40,9 +40,9 @@ export class CustomerError extends DomainError {
 }
 ```
 
-Use Cases throw via the catalog: `throw CustomerError.notFound(document)`. See [Catalog pattern](catalog-pattern.md) — this same shape repeats for Mailers and cache keys.
+Use Cases lançam via o catalog: `throw CustomerError.notFound(document)`. Ver [Padrão catalog](catalog-pattern.md) — esse mesmo formato se repete pra Mailers e chaves de cache.
 
-## Global filter maps `code` → HTTP status
+## Filter global mapeia `code` → status HTTP
 
 ```typescript
 const STATUS_MAP: Record<string, HttpStatus> = {
@@ -56,8 +56,8 @@ export class DomainExceptionFilter implements ExceptionFilter {
     const status = STATUS_MAP[exception.code];
 
     if (!status) {
-      // Unmapped code = programming mistake, not a business error.
-      // Fail loud (500) instead of silently guessing a status.
+      // Code sem mapeamento = erro de programação, não erro de negócio.
+      // Falha alto (500) em vez de adivinhar um status silenciosamente.
       throw exception;
     }
 
@@ -67,9 +67,9 @@ export class DomainExceptionFilter implements ExceptionFilter {
 }
 ```
 
-**Rule: every new `XxxError` needs an entry in `STATUS_MAP`.** The filter fails loud (rethrows, becomes an unhandled 500) instead of silently defaulting to some status when a `code` isn't found — fail-safe, not fail-open. Never give this map a silent fallback like `?? HttpStatus.BAD_REQUEST`; that would turn a forgotten mapping (e.g. a real conflict) into a wrong status instead of a visible bug.
+**Regra: todo `XxxError` novo precisa de uma entrada no `STATUS_MAP`.** O filter falha alto (relança, vira um 500 não tratado) em vez de cair silenciosamente num status padrão quando um `code` não é encontrado — fail-safe, não fail-open. Nunca dê a esse map um fallback silencioso tipo `?? HttpStatus.BAD_REQUEST`; isso transformaria um mapeamento esquecido (ex: um conflito de verdade) num status errado em vez de um bug visível.
 
-## Success envelope: `ResponseInterceptor`
+## Envelope de sucesso: `ResponseInterceptor`
 
 ```typescript
 @Injectable()
@@ -81,4 +81,4 @@ export class ResponseInterceptor implements NestInterceptor {
 }
 ```
 
-Controllers just return raw data; this global interceptor builds the `{data, message, status}` envelope. Neither the Interceptor nor the Filter is "middleware" — Nest middleware runs before the route handler and can't access its return value or catch its exceptions. This is specifically an Interceptor (success path) + Exception Filter (error path).
+Controllers só retornam dado bruto; esse interceptor global constrói o envelope `{data, message, status}`. Nem o Interceptor nem o Filter são "middleware" — middleware do Nest roda antes do route handler e não consegue acessar o valor de retorno nem capturar suas exceptions. Isso é especificamente um Interceptor (caminho de sucesso) + Exception Filter (caminho de erro).

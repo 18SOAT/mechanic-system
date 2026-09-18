@@ -1,14 +1,14 @@
-# Architecture documentation
+# Documentação de arquitetura
 
-This directory documents the coding architecture and conventions for `mechanic-system` — a NestJS + Prisma project applying tactical DDD in a modular monolith.
+Este diretório documenta a arquitetura de código e as convenções do `mechanic-system` — um projeto NestJS + Prisma aplicando DDD tático em um monolito modular.
 
-## Layers
+## Camadas
 
-- **`domain/`** — entities, value objects, repository interfaces (ports), domain errors. Pure TypeScript, zero framework/infrastructure imports.
-- **`application/`** — use cases. Orchestrate domain objects and repositories; contain no business rules themselves.
-- **`infrastructure/`** — concrete adapters: Prisma repositories, mappers, HTTP controllers/DTOs, mailers, cache adapters.
+- **`domain/`** — entities, value objects, interfaces de repository (ports), erros de domínio. TypeScript puro, zero imports de framework/infraestrutura.
+- **`application/`** — use cases. Orquestram objetos de domínio e repositories; não contêm regras de negócio.
+- **`infrastructure/`** — adapters concretos: repositories Prisma, mappers, controllers/DTOs HTTP, mailers, adapters de cache.
 
-Dependency direction: `infrastructure` → `application` → `domain`. Nothing in `domain/` ever imports from `application/` or `infrastructure/`.
+Direção da dependência: `infrastructure` → `application` → `domain`. Nada em `domain/` importa de `application/` ou `infrastructure/`.
 
 ## Patterns
 
@@ -17,20 +17,20 @@ Dependency direction: `infrastructure` → `application` → `domain`. Nothing i
 - [Repository](patterns/repository.md)
 - [Entity](patterns/entity.md)
 - [DTO](patterns/dto.md)
-- [Error handling](patterns/error-handling.md)
-- [Catalog pattern](patterns/catalog-pattern.md)
+- [Tratamento de erros](patterns/error-handling.md)
+- [Padrão catalog](patterns/catalog-pattern.md)
 
-## Infrastructure
+## Infraestrutura
 
-- [Services pattern (Port & Adapter)](infra/services-pattern.md)
+- [Padrão de services (Port & Adapter)](infra/services-pattern.md)
 - [Email](infra/email.md)
 - [Cache](infra/cache.md)
 - [Database (Prisma)](infra/database.md)
 
-## Libraries
+## Bibliotecas
 
 - [Swagger](libs/swagger.md)
 
-## Related
+## Relacionado
 
-Git workflow (branching, commits, PRs, changesets) lives in [`../workflow/README.md`](../workflow/README.md).
+O fluxo de git (branch, commits, PRs, changesets) está em [`../workflow/README.md`](../workflow/README.md).

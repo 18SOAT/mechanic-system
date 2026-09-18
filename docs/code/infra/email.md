@@ -1,6 +1,6 @@
 # Email
 
-## Generic port
+## Port genérica
 
 ```typescript
 // shared/infrastructure/email/email-sender.port.ts
@@ -16,7 +16,7 @@ export interface EmailSender {
 @Injectable()
 export class NodemailerEmailService implements EmailSender {
   async send(params: { to: string; subject: string; body: string }): Promise<void> {
-    // vendor-specific (Nodemailer/SES/Resend/...) call
+    // chamada específica do vendor (Nodemailer/SES/Resend/...)
   }
 }
 ```
@@ -31,11 +31,11 @@ export class NodemailerEmailService implements EmailSender {
 export class EmailModule {}
 ```
 
-This generic port only knows "send an email" — it has no idea what a status-update notification is. See [services-pattern.md](services-pattern.md) for the general recipe.
+Essa port genérica só sabe "enviar um email" — ela não faz ideia do que é uma notificação de atualização de status. Ver [services-pattern.md](services-pattern.md) pra a receita geral.
 
-## Per-module Mailer (catalog pattern)
+## Mailer por módulo (padrão catalog)
 
-Business-specific emails (with their templates) live in a per-module Mailer, one method per email type — see [Catalog pattern](../patterns/catalog-pattern.md):
+Emails específicos de negócio (com seus templates) ficam num Mailer por módulo, um método por tipo de email — ver [Padrão catalog](../patterns/catalog-pattern.md):
 
 ```typescript
 // modules/ordem-servico/infrastructure/mailers/ordem-servico.mailer.ts
@@ -55,6 +55,6 @@ export class OrdemServicoMailer {
 }
 ```
 
-**Don't** build a single generic `mailer.send(EmailType.STATUS_UPDATED, data)` method — see [Catalog pattern](../patterns/catalog-pattern.md) for why (loses per-call type safety, harder to test, less self-documenting).
+**Não** construa um único método genérico `mailer.send(EmailType.STATUS_UPDATED, data)` — ver [Padrão catalog](../patterns/catalog-pattern.md) pro motivo (perde type safety por chamada, fica mais difícil de testar, menos autoexplicativo).
 
-A Use Case injects the specific Mailer it needs, calls the named method, and never touches template rendering or the generic `EmailSender` directly.
+Um Use Case injeta o Mailer específico que precisa, chama o método nomeado, e nunca toca na renderização de template nem na `EmailSender` genérica diretamente.

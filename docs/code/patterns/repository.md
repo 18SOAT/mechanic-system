@@ -1,6 +1,6 @@
 # Repository
 
-Repository follows the Ports & Adapters pattern: an interface (port) owned by the domain, and a concrete implementation (adapter) in infrastructure.
+Repository segue o padrão Ports & Adapters: uma interface (port) pertencente ao domain, e uma implementação concreta (adapter) na infrastructure.
 
 ## Interface (port) + token
 
@@ -15,11 +15,11 @@ export interface CustomerRepository {
 }
 ```
 
-`CUSTOMER_REPOSITORY` is a real runtime value (a `Symbol`) — NestJS needs it because TypeScript interfaces are erased at compile time and can't be used as an injection token by themselves.
+`CUSTOMER_REPOSITORY` é um valor real em runtime (um `Symbol`) — o NestJS precisa dele porque interfaces do TypeScript são apagadas em tempo de compilação e não podem ser usadas sozinhas como injection token.
 
-## Naming: no `I` prefix
+## Nomenclatura: sem prefixo `I`
 
-The interface keeps the clean name (`CustomerRepository`) because it's the primary abstraction — the one that shows up in every Use Case. The concrete implementation carries the qualifier, since it's the replaceable detail:
+A interface mantém o nome limpo (`CustomerRepository`) porque é a abstração principal — a que aparece em todo Use Case. A implementação concreta carrega o qualificador, já que é o detalhe substituível:
 
 ```typescript
 // modules/customer/infrastructure/persistence/prisma-customer.repository.ts
@@ -30,7 +30,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
 }
 ```
 
-## Wiring in the module
+## Conectando no módulo
 
 ```typescript
 @Module({
@@ -42,7 +42,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
 export class CustomerModule {}
 ```
 
-Use Cases inject by token, type by interface:
+Use Cases injetam pelo token, tipam pela interface:
 
 ```typescript
 constructor(
@@ -50,7 +50,7 @@ constructor(
 ) {}
 ```
 
-## Generic base interface — keep it minimal
+## Interface base genérica — mantenha mínima
 
 ```typescript
 // shared/domain/repository.interface.ts
@@ -60,11 +60,11 @@ export interface Repository<T, ID = string> {
 }
 ```
 
-Only put truly universal operations on the base interface. Don't force `delete()` onto every repository if not every aggregate can be deleted — each specific `XxxRepository` extends the base and adds only the queries its aggregate needs (Interface Segregation Principle).
+Coloque na interface base só operações verdadeiramente universais. Não force um `delete()` em todo repository se nem todo aggregate pode ser deletado — cada `XxxRepository` específico estende a base e adiciona só as queries que seu aggregate precisa (Interface Segregation Principle).
 
 ## Mapper: `toEntity` / `toObject`
 
-Prisma's generated types are flat and public; domain Entities are encapsulated and carry Value Objects and behavior. The Mapper is the translation boundary between the two — it lives in infrastructure, next to the repository, never inside the Entity (that would leak a Prisma import into the domain).
+Os tipos gerados pelo Prisma são planos e públicos; as Entities de domain são encapsuladas e carregam Value Objects e comportamento. O Mapper é a fronteira de tradução entre os dois — ele vive na infrastructure, ao lado do repository, nunca dentro da Entity (isso vazaria um import do Prisma pro domain).
 
 ```typescript
 // modules/customer/infrastructure/persistence/customer.mapper.ts
@@ -89,14 +89,14 @@ export class CustomerMapper {
 }
 ```
 
-### When each one runs
+### Quando cada um roda
 
-| Operation | What happens |
+| Operação | O que acontece |
 |---|---|
-| Create | `Customer.create(input)` builds the Entity (nothing to read yet) → `save()` calls `toObject` |
-| Read (`findById`, `findAll`) | Prisma returns record(s) → `toEntity` (mapped per item for lists) |
-| Update | `findById` (`toEntity`, load current state) → mutate via an Entity method → `save` (`toObject`, persist the mutation) |
+| Criação | `Customer.create(input)` constrói a Entity (nada pra ler ainda) → `save()` chama `toObject` |
+| Leitura (`findById`, `findAll`) | Prisma retorna o(s) registro(s) → `toEntity` (mapeado por item, no caso de listas) |
+| Atualização | `findById` (`toEntity`, carrega o estado atual) → altera via um método da Entity → `save` (`toObject`, persiste a alteração) |
 
-Update is the only operation that goes through both, because it reads before it writes — this connects directly to the [Entity](entity.md) rule that mutation and validation happen through the Entity, not blindly at the persistence layer.
+A atualização é a única operação que passa pelos dois, porque lê antes de escrever — isso se conecta diretamente com a regra de [Entity](entity.md) de que alteração e validação acontecem através da Entity, nunca direto na camada de persistência.
 
-Don't re-read from the database right after a plain `create()` just to rebuild the Entity — you already have it in memory. The only exception is when the database itself generates a value the domain genuinely needs (rare; not the default case).
+Não releia do banco logo depois de um `create()` simples só pra reconstruir a Entity — você já tem ela em memória. A única exceção é quando o próprio banco gera um valor que o domain realmente precisa (raro; não é o caso padrão).

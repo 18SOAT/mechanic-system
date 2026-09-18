@@ -1,6 +1,6 @@
 # Cache
 
-## Generic port
+## Port genérica
 
 ```typescript
 // shared/infrastructure/cache/cache.port.ts
@@ -15,9 +15,9 @@ export interface Cache {
 }
 ```
 
-Backed by a Redis adapter, wired through an `@Global()` module — same recipe as [services-pattern.md](services-pattern.md). Unlike `EmailSender`, this port carries no business meaning at all; it exists purely so implementations are swappable and consumers are testable without a real Redis instance.
+Implementada por um adapter Redis, conectado via um módulo `@Global()` — mesma receita de [services-pattern.md](services-pattern.md). Diferente da `EmailSender`, essa port não carrega nenhum significado de negócio; ela existe só pra que as implementações sejam substituíveis e os consumidores sejam testáveis sem uma instância real do Redis.
 
-## Per-module cache-key catalog (catalog pattern)
+## Catalog de chaves de cache por módulo (padrão catalog)
 
 ```typescript
 // modules/ordem-servico/infrastructure/cache/ordem-servico-cache.keys.ts
@@ -37,8 +37,8 @@ export class OrdemServicoCacheKeys {
 }
 ```
 
-The enum prevents the same class of bug as the error `STATUS_MAP` (see [Error handling](../patterns/error-handling.md)): a typo in a hand-written key string silently breaks cache hits, with no compiler warning. See [Catalog pattern](../patterns/catalog-pattern.md) — same shape as `CustomerError`/`OrdemServicoMailer`.
+O enum evita a mesma classe de bug do `STATUS_MAP` de erro (ver [Tratamento de erros](../patterns/error-handling.md)): um erro de digitação numa chave escrita à mão quebra silenciosamente os cache hits, sem nenhum aviso do compilador. Ver [Padrão catalog](../patterns/catalog-pattern.md) — mesmo formato de `CustomerError`/`OrdemServicoMailer`.
 
-## Key format: colon-separated
+## Formato da chave: separado por dois-pontos
 
-`entity:id:usage` (e.g. `ordem-servico:123:status-snapshot`) — the idiomatic Redis convention, not underscores. It plays well with pattern-based commands (`KEYS ordem-servico:*`) and any Redis tooling/observability that assumes colon namespacing.
+`entity:id:usage` (ex: `ordem-servico:123:status-snapshot`) — a convenção idiomática do Redis, não underscores. Funciona bem com comandos baseados em pattern (`KEYS ordem-servico:*`) e qualquer ferramenta/observabilidade do Redis que assuma namespacing por dois-pontos.

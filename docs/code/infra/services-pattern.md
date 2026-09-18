@@ -1,10 +1,10 @@
-# Services pattern (Port & Adapter)
+# Padrão de services (Port & Adapter)
 
-Database connections, email delivery, caching — none of these are part of the business's ubiquitous language (nobody in an Event Storming session says "Redis"). In DDD's strategic vocabulary these are **Generic Subdomains**: technical support capabilities, not the core domain model. They're handled with the Hexagonal Architecture idea of **Port & Adapter**, which is really the same Dependency Inversion idea behind [Repository](../patterns/repository.md), generalized beyond persistence.
+Conexões de banco, envio de email, cache — nenhum desses faz parte da linguagem ubíqua do negócio (ninguém, numa sessão de Event Storming, diz "Redis"). No vocabulário estratégico do DDD, esses são **Generic Subdomains**: capacidades de suporte técnico, não o modelo de domínio central. Eles são tratados com a ideia de **Port & Adapter** da Hexagonal Architecture, que na prática é a mesma ideia de Dependency Inversion por trás do [Repository](../patterns/repository.md), generalizada pra além da persistência.
 
-## Recipe
+## Receita
 
-1. **Port** — an interface + an injection token (`Symbol`), owned generically (not by any single business module):
+1. **Port** — uma interface + um injection token (`Symbol`), pertencente de forma genérica (não a nenhum módulo de negócio específico):
 
 ```typescript
 // shared/infrastructure/xxx/xxx.port.ts
@@ -15,16 +15,16 @@ export interface Xxx {
 }
 ```
 
-2. **Adapter** — the concrete, technology-specific implementation:
+2. **Adapter** — a implementação concreta, específica da tecnologia:
 
 ```typescript
 @Injectable()
 export class ConcreteXxxAdapter implements Xxx {
-  async doSomething(): Promise<void> { /* vendor-specific code */ }
+  async doSomething(): Promise<void> { /* código específico do vendor */ }
 }
 ```
 
-3. **Global module** — wires the token to the adapter, imported once:
+3. **Módulo global** — conecta o token ao adapter, importado uma única vez:
 
 ```typescript
 @Global()
@@ -35,15 +35,15 @@ export class ConcreteXxxAdapter implements Xxx {
 export class XxxModule {}
 ```
 
-Business-module Use Cases inject by token (`@Inject(XXX)`), typed by the port interface — never the concrete adapter directly.
+Use Cases dos módulos de negócio injetam pelo token (`@Inject(XXX)`), tipados pela interface da port — nunca pelo adapter concreto diretamente.
 
-## Naming caution: two unrelated meanings of "Service"
+## Cuidado com nomenclatura: dois significados diferentes de "Service"
 
-- **Domain Service** (DDD tactical pattern) — pure business logic that doesn't naturally belong to one Entity. No I/O, no framework import. Lives in `domain/services/`.
-- **Infrastructure Service** (Nest convention: `PrismaService`, `NodemailerEmailService`, `RedisCacheService`) — a technology-specific adapter. Lives in `infrastructure/`.
+- **Domain Service** (pattern tático do DDD) — lógica de negócio pura que não pertence naturalmente a nenhuma Entity. Sem I/O, sem import de framework. Fica em `domain/services/`.
+- **Infrastructure Service** (convenção do Nest: `PrismaService`, `NodemailerEmailService`, `RedisCacheService`) — um adapter específico de tecnologia. Fica em `infrastructure/`.
 
-Same suffix, unrelated concepts — don't confuse the two when reading or writing code.
+Mesmo sufixo, conceitos sem relação — não confunda os dois ao ler ou escrever código.
 
-## Reference example: `PrismaService`
+## Exemplo de referência: `PrismaService`
 
-Generic, knows nothing about `Customer`/`Veiculo`/anything business-specific — just manages the connection lifecycle (`onModuleInit`/`onModuleDestroy`). See [database.md](database.md).
+Genérico, não sabe nada sobre `Customer`/`Veiculo`/qualquer coisa específica de negócio — só gerencia o ciclo de vida da conexão (`onModuleInit`/`onModuleDestroy`). Ver [database.md](database.md).

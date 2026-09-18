@@ -1,8 +1,8 @@
 # Entity
 
-An Entity is the source of truth for its own identity and validity. It should never be constructible in an invalid state, no matter which code path creates it (HTTP, a queue consumer, a script, another Use Case).
+Uma Entity é a fonte da verdade da própria identidade e validade. Ela nunca deve poder ser construída em um estado inválido, não importa qual caminho de código a crie (HTTP, um consumer de fila, um script, outro Use Case).
 
-## Private constructor + static factories
+## Constructor privado + factories estáticas
 
 ```typescript
 export class Customer {
@@ -17,32 +17,32 @@ export class Customer {
     return new Customer(
       crypto.randomUUID(),
       input.name,
-      CpfCnpj.create(input.document), // validates here, throws a domain error if invalid
+      CpfCnpj.create(input.document), // valida aqui, lança um erro de domínio se inválido
       input.email,
     );
   }
 
   static restore(props: { id: string; name: string; document: string; email: string }): Customer {
-    // used only by the Mapper, to rebuild from already-persisted (already-valid) data
+    // usado só pelo Mapper, pra reconstruir a partir de dados já persistidos (já válidos)
     return new Customer(props.id, props.name, CpfCnpj.create(props.document), props.email);
   }
 }
 ```
 
-- `create()` — a brand-new instance. Generates the id and runs full validation.
-- `restore()` — reconstructs an instance coming from persistence. Used only by the Mapper's `toEntity` (see [Repository](repository.md)).
+- `create()` — uma instância nova. Gera o id e roda a validação completa.
+- `restore()` — reconstrói uma instância vinda da persistência. Usado só pelo `toEntity` do Mapper (ver [Repository](repository.md)).
 
-## IDs are generated in the domain, not by the database
+## IDs são gerados no domain, não pelo banco
 
-`crypto.randomUUID()` (built into Node, no extra dependency) runs inside `create()`. The Prisma schema's `id` column has no `@default(uuid())`.
+`crypto.randomUUID()` (nativo do Node, sem dependência extra) roda dentro do `create()`. A coluna `id` do schema do Prisma não tem `@default(uuid())`.
 
-This matters because it keeps the Entity self-sufficient: it has a stable identity the moment it's created in memory, with no need to round-trip through the database (and back through `toEntity`) just to learn its own id.
+Isso importa porque mantém a Entity autossuficiente: ela tem uma identidade estável no momento em que é criada em memória, sem precisar ir e voltar do banco (e passar de novo por `toEntity`) só pra saber o próprio id.
 
-## Value Objects for validated/sensitive fields
+## Value Objects pra campos validados/sensíveis
 
-CPF/CNPJ, license plate ("placa") and similar fields are Value Objects, not raw strings. The VO validates on construction, guaranteeing the invariant holds **regardless of caller** — this is not redundant with request-level `class-validator` checks (see [DTO](dto.md)); the two protect different boundaries. Extract the actual validation algorithm (e.g. CPF check-digit logic) into one shared pure function reused by both the VO and the `class-validator` custom decorator, so the rule is written once even though it's invoked from two places.
+CPF/CNPJ, placa e campos parecidos são Value Objects, não strings soltas. O VO valida na construção, garantindo que o invariante se mantenha **independente de quem chama** — isso não é redundante com as checagens do `class-validator` em nível de request (ver [DTO](dto.md)); os dois protegem fronteiras diferentes. Extraia o algoritmo de validação de fato (ex: lógica de dígito verificador de CPF) pra uma única função pura compartilhada, reusada tanto pelo VO quanto pelo decorator customizado do `class-validator`, de forma que a regra seja escrita uma vez só, mesmo sendo invocada em dois lugares.
 
-## Business rules live here, not in the Use Case
+## Regras de negócio ficam aqui, não no Use Case
 
 ```typescript
 export class OrdemServico {
@@ -55,26 +55,26 @@ export class OrdemServico {
 }
 ```
 
-The Use Case only calls `os.aprovarOrcamento()` — it never inlines the status-transition check itself.
+O Use Case só chama `os.aprovarOrcamento()` — ele nunca embute a checagem de transição de status.
 
-## Sensitive fields: no public raw getter
+## Campos sensíveis: sem getter público do valor bruto
 
 ```typescript
 export class User {
   private constructor(
     private readonly id: string,
-    private readonly hashedPassword: string, // explicit name — never `password`
+    private readonly hashedPassword: string, // nome explícito — nunca `password`
   ) {}
 
   async verifyPassword(plainTextPassword: string): Promise<boolean> {
     return bcrypt.compare(plainTextPassword, this.hashedPassword);
   }
-  // no `get password()` — nothing outside the entity can read the raw hash
+  // sem `get password()` — nada fora da entity consegue ler o hash bruto
 }
 ```
 
-Authentication logic calls `verifyPassword()`; it never needs to read the raw hash. If the Mapper genuinely needs to read it for persistence, expose a getter named explicitly (`hashedPassword`), never `password` — the name itself should make it obvious this isn't safe to put in a Response DTO. See [DTO](dto.md) for the response-side whitelist rule that's the actual safety net.
+A lógica de autenticação chama `verifyPassword()`; ela nunca precisa ler o hash bruto. Se o Mapper realmente precisar ler pra persistência, exponha um getter com nome explícito (`hashedPassword`), nunca `password` — o próprio nome já deve deixar óbvio que isso não é seguro pra colocar num Response DTO. Ver [DTO](dto.md) pra a regra de whitelist do lado de resposta, que é a rede de segurança de fato.
 
-## Never import Prisma types here
+## Nunca importe tipos do Prisma aqui
 
-Translating to/from the persistence shape is the Mapper's job (see [Repository](repository.md)), specifically so the domain stays framework/ORM-agnostic.
+Traduzir de/para o formato de persistência é trabalho do Mapper (ver [Repository](repository.md)), justamente pra manter o domain independente de framework/ORM.

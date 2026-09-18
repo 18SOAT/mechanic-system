@@ -2,7 +2,7 @@
 
 ## Request DTOs
 
-Decorate every field with `@ApiProperty()` alongside its `class-validator` decorators (see [DTO](../patterns/dto.md)):
+Decore cada campo com `@ApiProperty()` junto com os decorators do `class-validator` (ver [DTO](../patterns/dto.md)):
 
 ```typescript
 export class CreateCustomerRequestDto {
@@ -12,11 +12,11 @@ export class CreateCustomerRequestDto {
 }
 ```
 
-## The response envelope is invisible to Swagger — declare it explicitly
+## O envelope de resposta é invisível pro Swagger — declare explicitamente
 
-`ResponseInterceptor` (see [Error handling](../patterns/error-handling.md)) builds `{data, message, status}` at runtime. Swagger generates docs from static decorators/reflection — it has no idea the Interceptor exists, so a plain `@ApiOkResponse({ type: CustomerResponseDto })` would document the response as the bare DTO, not the real envelope shape.
+O `ResponseInterceptor` (ver [Tratamento de erros](../patterns/error-handling.md)) constrói `{data, message, status}` em runtime. O Swagger gera a documentação a partir de decorators/reflection estáticos — ele não sabe que o Interceptor existe, então um `@ApiOkResponse({ type: CustomerResponseDto })` simples documentaria a resposta como o DTO puro, não como o formato real do envelope.
 
-Build one reusable decorator instead of repeating the envelope schema on every route:
+Construa um decorator reutilizável em vez de repetir o schema do envelope em cada rota:
 
 ```typescript
 // shared/infrastructure/http/decorators/api-standard-response.decorator.ts
@@ -42,18 +42,18 @@ export const ApiStandardResponse = <TModel extends Type<unknown>>(model: TModel,
 async create(@Body() dto: CreateCustomerRequestDto) { /* ... */ }
 ```
 
-## Errors are never inferred — TypeScript has no checked exceptions
+## Erros nunca são inferidos — TypeScript não tem checked exceptions
 
-Swagger cannot know what a Use Case might throw. Whoever writes the Controller method must manually declare every possible error response for that route, based on what its Use Case(s) can throw:
+O Swagger não tem como saber o que um Use Case pode lançar. Quem escreve o método do Controller precisa declarar manualmente cada resposta de erro possível daquela rota, com base no que seus Use Case(s) podem lançar:
 
 ```typescript
 @ApiResponse({ status: HttpStatus.CONFLICT, description: 'CPF/CNPJ já cadastrado.', type: ApiErrorResponseDto })
 @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Dados de entrada inválidos.', type: ApiErrorResponseDto })
 ```
 
-## One shared error DTO for the whole API
+## Um único DTO de erro compartilhado pra API inteira
 
-Since every `DomainError` produces the same shape (`{data: null, message, status}`), a single `ApiErrorResponseDto` covers all of them — only the HTTP status and description text vary per route:
+Como todo `DomainError` produz o mesmo formato (`{data: null, message, status}`), um único `ApiErrorResponseDto` cobre todos eles — só o status HTTP e o texto de descrição variam por rota:
 
 ```typescript
 export class ApiErrorResponseDto {
@@ -63,6 +63,6 @@ export class ApiErrorResponseDto {
 }
 ```
 
-## Later: the Swagger CLI plugin
+## Futuramente: o plugin de CLI do Swagger
 
-`@nestjs/swagger`'s CLI plugin (configured in `nest-cli.json`) can auto-generate much of the `@ApiProperty()` boilerplate from TypeScript types and comments. Worth enabling once the number of DTOs grows, to cut down manual decoration.
+O plugin de CLI do `@nestjs/swagger` (configurado em `nest-cli.json`) consegue autogerar boa parte do boilerplate de `@ApiProperty()` a partir dos tipos e comentários do TypeScript. Vale habilitar quando o número de DTOs crescer, pra reduzir a decoração manual.

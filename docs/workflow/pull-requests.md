@@ -2,7 +2,7 @@
 
 ## Idioma
 
-Comentários de revisão e a descrição do PR são escritos em **português (PT-BR)** — mesmo com o código e a documentação técnica (`docs/code/`) em inglês.
+Comentários de revisão e a descrição do PR são escritos em **português (PT-BR)**. Toda a documentação em `docs/` também está em português; só o código (nomes de classes, métodos, variáveis) fica em inglês.
 
 ## Checklist antes de abrir o PR
 

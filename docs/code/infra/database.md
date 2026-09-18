@@ -1,6 +1,6 @@
 # Database (Prisma)
 
-## `PrismaService` — generic, shared
+## `PrismaService` — genérico, compartilhado
 
 ```typescript
 // shared/infrastructure/prisma/prisma.service.ts
@@ -26,10 +26,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 export class PrismaModule {}
 ```
 
-Imported once in `AppModule`. `PrismaService` knows nothing about `Customer`, `Veiculo`, or any business concept — it only manages the connection lifecycle.
+Importado uma vez no `AppModule`. O `PrismaService` não sabe nada sobre `Customer`, `Veiculo`, ou qualquer conceito de negócio — ele só gerencia o ciclo de vida da conexão.
 
-## Concrete repositories live in each business module, not here
+## Repositories concretos ficam em cada módulo de negócio, não aqui
 
-`PrismaCustomerRepository`, `PrismaVeiculoRepository`, etc. are specific to their aggregate (they know the table shape, the specific queries that aggregate needs) and live in `modules/xxx/infrastructure/persistence/`, injecting `PrismaService` internally. See [Repository](../patterns/repository.md) for the full interface/implementation/mapper breakdown.
+`PrismaCustomerRepository`, `PrismaVeiculoRepository`, etc. são específicos do seu aggregate (conhecem o formato da tabela, as queries específicas que aquele aggregate precisa) e ficam em `modules/xxx/infrastructure/persistence/`, injetando o `PrismaService` internamente. Ver [Repository](../patterns/repository.md) pra o detalhamento completo de interface/implementação/mapper.
 
-Don't put anything business-specific in `shared/infrastructure/prisma/` beyond `PrismaService` itself.
+Não coloque nada específico de negócio em `shared/infrastructure/prisma/` além do próprio `PrismaService`.

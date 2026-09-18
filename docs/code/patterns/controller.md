@@ -1,17 +1,17 @@
 # Controller
 
-A Controller only translates HTTP ↔ Use Case. It has no business logic and never talks to a Repository directly.
+Um Controller só traduz HTTP ↔ Use Case. Ele não tem lógica de negócio e nunca fala com um Repository diretamente.
 
-## Responsibilities
+## Responsabilidades
 
-- Receive the validated request DTO (validation happens in a `Pipe`, before the method runs — see [DTO](dto.md)).
-- Call the specific Use Case(s) that route needs.
-- Return the raw result; the global `ResponseInterceptor` wraps it in the standard envelope (see [Error handling](error-handling.md)).
-- Optionally map the result to a Response DTO before returning (see [DTO](dto.md)).
+- Receber o request DTO já validado (a validação acontece num `Pipe`, antes do método rodar — ver [DTO](dto.md)).
+- Chamar o(s) Use Case(s) específico(s) que a rota precisa.
+- Retornar o resultado bruto; o `ResponseInterceptor` global embrulha no envelope padrão (ver [Tratamento de erros](error-handling.md)).
+- Opcionalmente mapear o resultado pra um Response DTO antes de retornar (ver [DTO](dto.md)).
 
-## Inject Use Cases directly — never a "God Service"
+## Injete Use Cases diretamente — nunca um "God Service"
 
-Inject only the Use Cases each route actually needs, one per operation:
+Injete só os Use Cases que cada rota realmente precisa, um por operação:
 
 ```typescript
 @Controller('customers')
@@ -35,8 +35,8 @@ export class CustomerController {
 }
 ```
 
-## Anti-pattern: orchestrator service
+## Anti-pattern: service orquestrador
 
-Do not create a `CustomerService` that only delegates to `CreateCustomerUseCase`, `FindCustomerByDocumentUseCase`, etc. That recreates the "fat service" the Use Case split was meant to avoid: every route ends up depending on every Use Case in the module, and the extra layer adds no value.
+Não crie um `CustomerService` que só delega pra `CreateCustomerUseCase`, `FindCustomerByDocumentUseCase`, etc. Isso recria o "fat service" que a separação em Use Case foi criada pra evitar: toda rota acaba dependendo de todo Use Case do módulo, e a camada extra não agrega valor.
 
-A Use Case is allowed to call another Use Case — but only when there is a real business dependency (e.g. creating an `OrdemServico` needs to create the `Veiculo` first if it doesn't exist), never as a generic pass-through. See [Use Case](use-case.md).
+Um Use Case pode chamar outro Use Case — mas só quando existe uma dependência de negócio real (ex: criar uma `OrdemServico` precisa criar o `Veiculo` primeiro, se ele ainda não existir), nunca como uma passagem genérica. Ver [Use Case](use-case.md).

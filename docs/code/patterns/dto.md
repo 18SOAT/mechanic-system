@@ -1,8 +1,8 @@
 # DTO
 
-There are two unrelated kinds of DTO, and they solve different problems.
+Existem dois tipos de DTO sem relação entre si, que resolvem problemas diferentes.
 
-## Request DTO — HTTP-edge format validation
+## Request DTO — validação de formato na borda HTTP
 
 ```typescript
 export class CreateCustomerRequestDto {
@@ -16,22 +16,22 @@ export class CreateCustomerRequestDto {
 }
 ```
 
-Validated by a `Pipe` (`ValidationPipe` + `class-validator`), before the Controller method runs. It rejects malformed payloads fast, with a proper HTTP 400, before any business logic executes.
+Validado por um `Pipe` (`ValidationPipe` + `class-validator`), antes do método do Controller rodar. Ele rejeita payloads malformados rápido, com um HTTP 400 de verdade, antes de qualquer lógica de negócio executar.
 
-### This does not replace Value Object validation
+### Isso não substitui a validação do Value Object
 
-The domain's Value Object (see [Entity](entity.md)) still validates the same kind of thing (format, checksum) — this is not wasted duplication, it's defense in depth for two different boundaries:
+O Value Object do domain (ver [Entity](entity.md)) continua validando o mesmo tipo de coisa (formato, checksum) — isso não é duplicação desperdiçada, é defesa em profundidade pra duas fronteiras diferentes:
 
-- `class-validator` on the DTO protects the **HTTP edge**.
-- The Value Object protects the **domain invariant**, guaranteeing it holds no matter which code path constructs the Entity (a queue consumer, a script, another Use Case — none of those go through the HTTP DTO at all).
+- O `class-validator` no DTO protege a **borda HTTP**.
+- O Value Object protege o **invariante de domínio**, garantindo que ele se mantenha não importa qual caminho de código construa a Entity (um consumer de fila, um script, outro Use Case — nenhum desses passa pelo DTO HTTP).
 
-Extract the actual check (e.g. CPF checksum) into one shared pure function called from both places, so the algorithm itself isn't duplicated — only the call site is.
+Extraia a checagem de fato (ex: checksum de CPF) pra uma única função pura chamada dos dois lugares, de forma que o algoritmo em si não seja duplicado — só o ponto de chamada.
 
-### Uniqueness checks don't belong in either
+### Checagens de unicidade não pertencem a nenhum dos dois
 
-"CPF already registered", "email already in use" require a database query — neither `class-validator` (synchronous, per-field) nor a Value Object (must stay pure, no I/O) can do this. It belongs in the Use Case, via the Repository, before constructing/persisting the Entity.
+"CPF já cadastrado", "email já em uso" exigem uma query no banco — nem o `class-validator` (síncrono, por campo) nem um Value Object (precisa ficar puro, sem I/O) conseguem fazer isso. Isso pertence ao Use Case, via Repository, antes de construir/persistir a Entity.
 
-## Response DTO — always a whitelist
+## Response DTO — sempre uma whitelist
 
 ```typescript
 export class CustomerResponseDto {
@@ -47,12 +47,12 @@ export class CustomerResponseDto {
 }
 ```
 
-Explicitly copy only the fields that are safe to expose. **Never rely on a blacklist** (e.g. `@Exclude()` marking sensitive fields) as the primary defense — the same "forget one entry" risk we avoid in [Error handling](error-handling.md)'s status map applies here: a new sensitive field added later leaks silently unless someone remembers to blacklist it. A whitelist fails safe instead — a forgotten field is just missing from the response, never leaked.
+Copie explicitamente só os campos que são seguros pra expor. **Nunca confie numa blacklist** (ex: `@Exclude()` marcando campos sensíveis) como defesa principal — o mesmo risco de "esquecer uma entrada" que evitamos no status map de [Tratamento de erros](error-handling.md) se aplica aqui: um campo sensível novo, adicionado depois, vaza silenciosamente a não ser que alguém lembre de colocar na blacklist. Uma whitelist falha de forma segura — um campo esquecido só fica faltando na resposta, nunca vaza.
 
-Listings reuse the same DTO via `.map(CustomerResponseDto.fromEntity)`. Only create a different DTO shape when the exposed data genuinely differs (e.g. a summarized list item vs. a full detail view).
+Listagens reusam o mesmo DTO via `.map(CustomerResponseDto.fromEntity)`. Só crie um formato de DTO diferente quando o dado exposto realmente for diferente (ex: um item de lista resumido vs. uma visão de detalhe completa).
 
-### Composed / nested responses
+### Respostas compostas / aninhadas
 
-When a listing joins data across aggregates (e.g. `Veiculo` with its `Customer` and the customer's `User`), compose a dedicated response DTO in the Repository/Mapper layer. Prisma's selective `select` (only fetching the fields you need, e.g. excluding `hashedPassword` from a nested `user` relation) is a good complementary optimization and an extra layer of defense — but it must never be the *only* defense, since it has to be repeated correctly at every query site. The whitelist DTO remains the single mandatory checkpoint.
+Quando uma listagem junta dados de vários aggregates (ex: `Veiculo` com seu `Customer` e o `User` do customer), componha um DTO de resposta dedicado na camada de Repository/Mapper. O `select` seletivo do Prisma (buscar só os campos necessários, ex: excluindo `hashedPassword` de uma relação `user` aninhada) é uma boa otimização complementar e uma camada extra de defesa — mas nunca pode ser a *única* defesa, já que precisaria ser repetido corretamente em cada ponto de query. O DTO whitelist continua sendo o checkpoint único obrigatório.
 
-Note: composing nested data for a listing/response is a query/presentation concern. It does not mean the `Veiculo` Entity itself should hold a full `Customer` object as part of its consistency boundary — aggregates typically reference each other by id only.
+Nota: compor dado aninhado pra uma listagem/resposta é uma preocupação de query/apresentação. Isso não significa que a própria Entity `Veiculo` deva carregar um objeto `Customer` completo como parte do seu limite de consistência — aggregates tipicamente se referenciam só por id.

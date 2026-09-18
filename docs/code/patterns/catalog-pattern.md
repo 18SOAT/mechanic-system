@@ -1,20 +1,20 @@
-# Catalog pattern
+# Padrão catalog
 
-A recurring shape across this codebase: **one class per module acting as a catalog, with one static factory method per specific variant** (usually backed by an enum), instead of one generic method taking a "type" parameter.
+Um formato recorrente nessa base de código: **uma classe por módulo agindo como catálogo, com um método de factory estático por variante específica** (geralmente baseado em um enum), em vez de um método genérico que recebe um parâmetro de "tipo".
 
-## Where it shows up
+## Onde aparece
 
-| Concern | Catalog class | Variant example |
+| Preocupação | Classe catalog | Exemplo de variante |
 |---|---|---|
-| Domain errors | `CustomerError` | `.notFound()`, `.documentAlreadyInUse()` — see [Error handling](error-handling.md) |
-| Email | `OrdemServicoMailer` | `.sendStatusUpdated()`, `.sendOrcamentoApproved()` — see [infra/email.md](../infra/email.md) |
-| Cache keys | `OrdemServicoCacheKeys` | `.statusSnapshot(id)`, `.tempoMedioExecucao()` — see [infra/cache.md](../infra/cache.md) |
+| Erros de domínio | `CustomerError` | `.notFound()`, `.documentAlreadyInUse()` — ver [Tratamento de erros](error-handling.md) |
+| Email | `OrdemServicoMailer` | `.sendStatusUpdated()`, `.sendOrcamentoApproved()` — ver [infra/email.md](../infra/email.md) |
+| Chaves de cache | `OrdemServicoCacheKeys` | `.statusSnapshot(id)`, `.tempoMedioExecucao()` — ver [infra/cache.md](../infra/cache.md) |
 
-## Why not a generic dispatch method
+## Por que não um método de dispatch genérico
 
-A single method like `mailer.send(EmailType.STATUS_UPDATED, data)` forces `data` into a generic/union shape, losing per-call type safety (nothing guarantees `data` has the right fields for that specific `EmailType`), hurts autocomplete, and makes it harder to test one variant in isolation. A dedicated method per variant keeps each call site fully typed and makes the class itself a browsable catalog of "everything this module can do" in that category.
+Um único método como `mailer.send(EmailType.STATUS_UPDATED, data)` força `data` a ter um formato genérico/union, perdendo type safety por chamada (nada garante que `data` tenha os campos certos pra aquele `EmailType` específico), prejudica o autocomplete, e dificulta testar uma variante isoladamente. Um método dedicado por variante mantém cada ponto de chamada totalmente tipado e transforma a própria classe num catálogo navegável de "tudo que esse módulo pode fazer" naquela categoria.
 
-## The shape
+## O formato
 
 ```typescript
 export class XxxCatalog {
@@ -25,4 +25,4 @@ export class XxxCatalog {
 }
 ```
 
-Apply this shape whenever a new "one class producing several named, structurally different things for a module" need shows up (e.g. a future notification catalog, an audit-log catalog) — don't reinvent the decision from scratch each time.
+Aplique esse formato sempre que surgir uma necessidade nova de "uma classe produzindo várias coisas nomeadas e estruturalmente diferentes pra um módulo" (ex: um futuro catalog de notificações, um catalog de audit-log) — não reinvente a decisão do zero toda vez.

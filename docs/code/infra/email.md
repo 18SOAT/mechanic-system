@@ -38,18 +38,18 @@ Essa port genérica só sabe "enviar um email" — ela não faz ideia do que é 
 Emails específicos de negócio (com seus templates) ficam num Mailer por módulo, um método por tipo de email — ver [Padrão catalog](../patterns/catalog-pattern.md):
 
 ```typescript
-// modules/ordem-servico/infrastructure/mailers/ordem-servico.mailer.ts
+// modules/service-order/infrastructure/mailers/service-order.mailer.ts
 @Injectable()
-export class OrdemServicoMailer {
+export class ServiceOrderMailer {
   constructor(@Inject(EMAIL_SENDER) private readonly emailSender: EmailSender) {}
 
-  async sendStatusUpdated(params: { to: string; customerName: string; placa: string; newStatus: string }) {
-    const html = renderTemplate('ordem-servico-status-updated', params);
+  async sendStatusUpdated(params: { to: string; customerName: string; plate: string; newStatus: string }) {
+    const html = renderTemplate('service-order-status-updated', params);
     await this.emailSender.send({ to: params.to, subject: 'Atualização da sua Ordem de Serviço', body: html });
   }
 
-  async sendOrcamentoApproved(params: { to: string; customerName: string; valor: number }) {
-    const html = renderTemplate('ordem-servico-orcamento-aprovado', params);
+  async sendQuoteApproved(params: { to: string; customerName: string; amount: number }) {
+    const html = renderTemplate('service-order-quote-approved', params);
     await this.emailSender.send({ to: params.to, subject: 'Orçamento aprovado', body: html });
   }
 }

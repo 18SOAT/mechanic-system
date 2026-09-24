@@ -45,17 +45,17 @@ CPF/CNPJ, placa e campos parecidos são Value Objects, não strings soltas. O VO
 ## Regras de negócio ficam aqui, não no Use Case
 
 ```typescript
-export class OrdemServico {
-  aprovarOrcamento(): void {
-    if (this.status !== OrdemServicoStatus.AGUARDANDO_APROVACAO) {
-      throw OrdemServicoError.invalidStatusTransition(this.status);
+export class ServiceOrder {
+  approveQuote(): void {
+    if (this.status !== ServiceOrderStatus.AWAITING_APPROVAL) {
+      throw ServiceOrderError.invalidStatusTransition(this.status);
     }
-    this.status = OrdemServicoStatus.EM_EXECUCAO;
+    this.status = ServiceOrderStatus.IN_EXECUTION;
   }
 }
 ```
 
-O Use Case só chama `os.aprovarOrcamento()` — ele nunca embute a checagem de transição de status.
+O Use Case só chama `serviceOrder.approveQuote()` — ele nunca embute a checagem de transição de status.
 
 ## Campos sensíveis: sem getter público do valor bruto
 

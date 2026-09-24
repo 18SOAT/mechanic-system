@@ -39,4 +39,4 @@ export class CustomerController {
 
 Não crie um `CustomerService` que só delega pra `CreateCustomerUseCase`, `FindCustomerByDocumentUseCase`, etc. Isso recria o "fat service" que a separação em Use Case foi criada pra evitar: toda rota acaba dependendo de todo Use Case do módulo, e a camada extra não agrega valor.
 
-Um Use Case pode chamar outro Use Case — mas só quando existe uma dependência de negócio real (ex: criar uma `OrdemServico` precisa criar o `Veiculo` primeiro, se ele ainda não existir), nunca como uma passagem genérica. Ver [Use Case](use-case.md).
+Um Use Case pode chamar outro Use Case — mas só quando existe uma dependência de negócio real (ex: abrir um `Order` precisa criar o `Vehicle` primeiro, se ele ainda não existir), nunca como uma passagem genérica. Ver [Use Case](use-case.md).

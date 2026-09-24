@@ -53,6 +53,6 @@ Listagens reusam o mesmo DTO via `.map(CustomerResponseDto.fromEntity)`. Só cri
 
 ### Respostas compostas / aninhadas
 
-Quando uma listagem junta dados de vários aggregates (ex: `Veiculo` com seu `Customer` e o `User` do customer), componha um DTO de resposta dedicado na camada de Repository/Mapper. O `select` seletivo do Prisma (buscar só os campos necessários, ex: excluindo `hashedPassword` de uma relação `user` aninhada) é uma boa otimização complementar e uma camada extra de defesa — mas nunca pode ser a *única* defesa, já que precisaria ser repetido corretamente em cada ponto de query. O DTO whitelist continua sendo o checkpoint único obrigatório.
+Quando uma listagem junta dados de vários aggregates (ex: `Vehicle` com seu `Customer` e o `User` do customer), componha um DTO de resposta dedicado na camada de Repository/Mapper. O `select` seletivo do Prisma (buscar só os campos necessários, ex: excluindo `hashedPassword` de uma relação `user` aninhada) é uma boa otimização complementar e uma camada extra de defesa — mas nunca pode ser a *única* defesa, já que precisaria ser repetido corretamente em cada ponto de query. O DTO whitelist continua sendo o checkpoint único obrigatório.
 
-Nota: compor dado aninhado pra uma listagem/resposta é uma preocupação de query/apresentação. Isso não significa que a própria Entity `Veiculo` deva carregar um objeto `Customer` completo como parte do seu limite de consistência — aggregates tipicamente se referenciam só por id.
+Nota: compor dado aninhado pra uma listagem/resposta é uma preocupação de query/apresentação. Isso não significa que a própria Entity `Vehicle` deva carregar um objeto `Customer` completo como parte do seu limite de consistência — aggregates tipicamente se referenciam só por id.

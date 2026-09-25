@@ -4,7 +4,7 @@
 
 Stack: **NestJS 12** + TypeScript, gerenciado com **pnpm**, testado com **Vitest**, lint + format com **Biome**. Git hooks com **Husky** (pre-commit roda lint-staged, pre-push roda os testes). CI no **GitHub Actions** (`.github/workflows/ci.yml`). Versionamento com **Changesets** (`.changeset/`, `.github/workflows/release.yml`). Banco de dados **PostgreSQL** via **Prisma ORM**, containerizado com **Docker**/`docker-compose`, API documentada com **Swagger**, autenticação **JWT** nas rotas administrativas. *(Prisma/Postgres/Docker/Swagger ainda não instalados — só definidos pra contexto; entram quando começarmos a implementação.)*
 
-O projeto deve seguir **DDD (Domain-Driven Design)** tático, arquitetura em camadas (monolito modular), aplicado em cima da arquitetura modular do NestJS.
+O projeto deve seguir **DDD (Domain-Driven Design)** tático, com **Clean Architecture + Ports & Adapters** (monolito modular, camadas `domain/application/infrastructure/presentation` por módulo), aplicado em cima da arquitetura modular do NestJS.
 
 ## Escopo funcional obrigatório
 

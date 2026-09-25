@@ -1,0 +1,7 @@
+export enum ServiceOrderStatus {
+  IN_DIAGNOSIS = 'IN_DIAGNOSIS',
+  AWAITING_APPROVAL = 'AWAITING_APPROVAL', // fase de orçamento
+  REJECTED = 'REJECTED',
+  IN_EXECUTION = 'IN_EXECUTION',
+  FINISHED = 'FINISHED',
+}

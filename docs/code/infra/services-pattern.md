@@ -46,4 +46,4 @@ Mesmo sufixo, conceitos sem relação — não confunda os dois ao ler ou escrev
 
 ## Exemplo de referência: `PrismaService`
 
-Genérico, não sabe nada sobre `Customer`/`Veiculo`/qualquer coisa específica de negócio — só gerencia o ciclo de vida da conexão (`onModuleInit`/`onModuleDestroy`). Ver [database.md](database.md).
+Genérico, não sabe nada sobre `Customer`/`Vehicle`/qualquer coisa específica de negócio — só gerencia o ciclo de vida da conexão (`onModuleInit`/`onModuleDestroy`). Ver [database.md](database.md).

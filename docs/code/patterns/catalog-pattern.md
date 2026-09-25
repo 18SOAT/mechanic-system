@@ -7,8 +7,8 @@ Um formato recorrente nessa base de código: **uma classe por módulo agindo com
 | Preocupação | Classe catalog | Exemplo de variante |
 |---|---|---|
 | Erros de domínio | `CustomerError` | `.notFound()`, `.documentAlreadyInUse()` — ver [Tratamento de erros](error-handling.md) |
-| Email | `OrdemServicoMailer` | `.sendStatusUpdated()`, `.sendOrcamentoApproved()` — ver [infra/email.md](../infra/email.md) |
-| Chaves de cache | `OrdemServicoCacheKeys` | `.statusSnapshot(id)`, `.tempoMedioExecucao()` — ver [infra/cache.md](../infra/cache.md) |
+| Email | `ServiceOrderMailer` | `.sendStatusUpdated()`, `.sendQuoteApproved()` — ver [infra/email.md](../infra/email.md) |
+| Chaves de cache | `ServiceOrderCacheKeys` | `.statusSnapshot(id)`, `.averageExecutionTime()` — ver [infra/cache.md](../infra/cache.md) |
 
 ## Por que não um método de dispatch genérico
 

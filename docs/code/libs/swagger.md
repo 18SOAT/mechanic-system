@@ -19,7 +19,7 @@ O `ResponseInterceptor` (ver [Tratamento de erros](../patterns/error-handling.md
 Construa um decorator reutilizável em vez de repetir o schema do envelope em cada rota:
 
 ```typescript
-// shared/infrastructure/http/decorators/api-standard-response.decorator.ts
+// shared/presentation/decorators/api-standard-response.decorator.ts
 export const ApiStandardResponse = <TModel extends Type<unknown>>(model: TModel, status: HttpStatus) =>
   applyDecorators(
     ApiExtraModels(model),
@@ -56,6 +56,7 @@ O Swagger não tem como saber o que um Use Case pode lançar. Quem escreve o mé
 Como todo `DomainError` produz o mesmo formato (`{data: null, message, status}`), um único `ApiErrorResponseDto` cobre todos eles — só o status HTTP e o texto de descrição variam por rota:
 
 ```typescript
+// shared/presentation/dtos/api-error-response.dto.ts
 export class ApiErrorResponseDto {
   @ApiProperty({ example: null }) data: null;
   @ApiProperty({ example: 'Cliente com documento 123.456.789-00 já cadastrado.' }) message: string;

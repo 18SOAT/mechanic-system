@@ -5,6 +5,7 @@ Existem dois tipos de DTO sem relação entre si, que resolvem problemas diferen
 ## Request DTO — validação de formato na borda HTTP
 
 ```typescript
+// modules/customer/presentation/dtos/create-customer.request.dto.ts
 export class CreateCustomerRequestDto {
   @ApiProperty({ example: 'João Silva' })
   @IsString()
@@ -34,6 +35,7 @@ Extraia a checagem de fato (ex: checksum de CPF) pra uma única função pura ch
 ## Response DTO — sempre uma whitelist
 
 ```typescript
+// modules/customer/presentation/dtos/customer.response.dto.ts
 export class CustomerResponseDto {
   constructor(
     readonly id: string,

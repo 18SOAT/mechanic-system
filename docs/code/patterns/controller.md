@@ -14,6 +14,7 @@ Um Controller só traduz HTTP ↔ Use Case. Ele não tem lógica de negócio e n
 Injete só os Use Cases que cada rota realmente precisa, um por operação:
 
 ```typescript
+// modules/customer/presentation/controllers/customer.controller.ts
 @Controller('customers')
 export class CustomerController {
   constructor(

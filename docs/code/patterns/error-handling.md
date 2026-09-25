@@ -45,6 +45,7 @@ Use Cases lançam via o catalog: `throw CustomerError.notFound(document)`. Ver [
 ## Filter global mapeia `code` → status HTTP
 
 ```typescript
+// shared/presentation/filters/domain-exception.filter.ts
 const STATUS_MAP: Record<string, HttpStatus> = {
   CUSTOMER_NOT_FOUND: HttpStatus.NOT_FOUND,
   CUSTOMER_DOCUMENT_ALREADY_IN_USE: HttpStatus.CONFLICT,
@@ -72,6 +73,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
 ## Envelope de sucesso: `ResponseInterceptor`
 
 ```typescript
+// shared/presentation/interceptors/response.interceptor.ts
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler) {

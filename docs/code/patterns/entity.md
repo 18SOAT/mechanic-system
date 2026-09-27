@@ -15,7 +15,7 @@ export class Customer {
 
   static create(input: { name: string; document: string; email: string }): Customer {
     return new Customer(
-      crypto.randomUUID(),
+      IdGenerator.generate(),
       input.name,
       CpfCnpj.create(input.document), // valida aqui, lança um erro de domínio se inválido
       input.email,
@@ -34,7 +34,9 @@ export class Customer {
 
 ## IDs são gerados no domain, não pelo banco
 
-`crypto.randomUUID()` (nativo do Node, sem dependência extra) roda dentro do `create()`. A coluna `id` do schema do Prisma não tem `@default(uuid())`.
+`IdGenerator.generate()` (`shared/domain/id-generator.ts`) roda dentro do `create()` e gera um **UUID v7** (lib `uuid` — o Node 22 ainda não tem `randomUUIDv7`). A coluna `id` do schema do Prisma não tem `@default(uuid())`.
+
+Por que v7 e não v4 (`crypto.randomUUID()`): o v7 começa com um timestamp, então os ids novos são sempre "maiores" que os anteriores. O índice da PK no Postgres cresce só no final, em vez de receber inserts aleatórios espalhados pela árvore — inserts mais baratos e índice menos fragmentado.
 
 Isso importa porque mantém a Entity autossuficiente: ela tem uma identidade estável no momento em que é criada em memória, sem precisar ir e voltar do banco (e passar de novo por `toEntity`) só pra saber o próprio id.
 
@@ -63,15 +65,19 @@ O Use Case só chama `serviceOrder.approveQuote()` — ele nunca embute a checag
 export class User {
   private constructor(
     private readonly id: string,
-    private readonly hashedPassword: string, // nome explícito — nunca `password`
+    private readonly passwordHash: string, // nunca `password`
   ) {}
 
-  async verifyPassword(plainTextPassword: string): Promise<boolean> {
-    return bcrypt.compare(plainTextPassword, this.hashedPassword);
+  // O hasher é um port do domain (modules/user/domain/ports/password-hasher.port.ts),
+  // recebido como parâmetro — o bcrypt fica no adapter, fora do domain.
+  verifyPassword(plainTextPassword: string, hasher: PasswordHasher): Promise<boolean> {
+    return hasher.compare(plainTextPassword, this.passwordHash);
   }
   // sem `get password()` — nada fora da entity consegue ler o hash bruto
 }
 ```
+
+Por que passar o hasher como parâmetro em vez de importar `bcrypt` na entity: o domain não pode depender de lib de infraestrutura. A entity continua decidindo **quando** comparar (é o comportamento dela); o adapter (`BcryptPasswordHasher`) decide **como**. Em teste, um hasher fake entra no lugar sem mock de módulo.
 
 A lógica de autenticação chama `verifyPassword()`; ela nunca precisa ler o hash bruto. Se o Mapper realmente precisar ler pra persistência, exponha um getter com nome explícito (`hashedPassword`), nunca `password` — o próprio nome já deve deixar óbvio que isso não é seguro pra colocar num Response DTO. Ver [DTO](dto.md) pra a regra de whitelist do lado de resposta, que é a rede de segurança de fato.
 

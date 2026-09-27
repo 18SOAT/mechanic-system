@@ -68,7 +68,7 @@ model Employee {
 model Customer {
   id        String   @id @db.Uuid
   userId    String?  @unique @map("user_id") @db.Uuid // login is optional
-  name      String
+  name      String?
   document  String   @unique // CPF (11) or CNPJ (14), digits only — VO Document
   email     String
   phone     String?
